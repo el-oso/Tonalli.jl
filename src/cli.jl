@@ -194,7 +194,7 @@ function _cli_ask(rest::Vector{String})::Cint
         started = true
     end
     try
-        resp = ask(b, store, b, query; k = 6, model = _RAG_CHAT_MODEL)
+        resp = ask(b, store, b, query; k = 6, embed_model = _RAG_EMBED_MODEL, chat_model = _RAG_CHAT_MODEL)
         println(resp.content)
         sources = get(resp.raw isa AbstractDict ? resp.raw : Dict{String, Any}(), "rag_sources", String[])
         if !isempty(sources)

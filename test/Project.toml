@@ -9,7 +9,7 @@ Tonalli = "8fb3dae7-4b62-4c13-ac21-c70ee8bc898c"
 TypeContracts = "c7a3f1e2-84b5-4d69-9e0a-1f2b3c4d5e6f"
 
 [sources]
-Tonalli = {path = "/home/el_oso/Documents/claude/Tonalli.jl"}
+Tonalli = {path = ".."}
 
 [compat]
 ReTestItems = "1"

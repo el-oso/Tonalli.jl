@@ -438,7 +438,11 @@ end
 Full RAG pipeline: embed `query` with `embedder`, retrieve the top-`k` chunks from
 `store`, build the grounded prompt, and generate an answer with `generator`.
 
-`kw` is forwarded to `chat`. Use `model=` to override the model name on either backend.
+`kw` is forwarded to `chat`. `embed_model`/`chat_model` set the model name used on the
+embedder and generator respectively (both default to `model`). When the embedder and
+generator differ — e.g. `embed-gemma` for retrieval and `gemma4` for generation, even on a
+single FastFlowLM `--embed` server — pass them separately so the query is embedded with the
+same model the corpus was embedded with.
 
 The retrieved `Chunk` sources are attached to the returned `ChatResponse`'s `raw` field
 under the key `"rag_sources"` (a `Vector{String}`).
@@ -450,12 +454,14 @@ function ask(
         query::AbstractString;
         k::Int = 6,
         model::AbstractString = "",
+        embed_model::AbstractString = model,
+        chat_model::AbstractString = model,
         kw...,
     )::ChatResponse
-    chunks = retrieve(store, embedder, query, k; model = model)
+    chunks = retrieve(store, embedder, query, k; model = embed_model)
     messages = build_rag_prompt(query, chunks)
     sources = [c.source for c in chunks]
-    resp = chat(generator, messages; model = model, kw...)
+    resp = chat(generator, messages; model = chat_model, kw...)
     # Attach sources to the raw field — copy the raw dict and add the key.
     raw_with_sources = if resp.raw isa AbstractDict
         d = Dict{String, Any}(string(k) => v for (k, v) in resp.raw)
