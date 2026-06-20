@@ -20,6 +20,7 @@ makedocs(;
         "Home" => "index.md",
         "Getting started" => "getting_started.md",
         "Inference" => "inference.md",
+        "Julia expert (RAG)" => "rag.md",
         "Fine-tuning" => "finetuning.md",
         "Diagnostics" => "diagnostics.md",
         "API reference" => "api.md",
