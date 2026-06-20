@@ -11,7 +11,7 @@ end
 
 @testitem "client + FastFlowLM over a mock OpenAI server" begin
     using Tonalli
-    using HTTP, JSON3, Sockets
+    using HTTP, JSON, Sockets
 
     function freeport()
         s = Sockets.listen(Sockets.localhost, 0)
@@ -25,7 +25,7 @@ end
     function handler(http::HTTP.Stream)
         target = http.message.target
         reqbody = String(read(http))
-        body = isempty(reqbody) ? Dict{Symbol, Any}() : JSON3.read(reqbody)
+        body = isempty(reqbody) ? Dict{String, Any}() : JSON.parse(reqbody)
         _send(s, ct = "application/json") = begin
             HTTP.setstatus(http, 200)
             HTTP.setheader(http, "Content-Type" => ct)
@@ -33,12 +33,12 @@ end
             write(http, s)
         end
         if occursin("/chat/completions", target)
-            if get(body, :stream, false) === true
+            if get(body, "stream", false) === true
                 HTTP.setstatus(http, 200)
                 HTTP.setheader(http, "Content-Type" => "text/event-stream")
                 HTTP.startwrite(http)
-                write(http, string("data: ", JSON3.write(Dict("choices" => [Dict("delta" => Dict("content" => "Hello"))])), "\n\n"))
-                write(http, string("data: ", JSON3.write(Dict("choices" => [Dict("delta" => Dict("content" => " world"), "finish_reason" => "stop")])), "\n\n"))
+                write(http, string("data: ", JSON.json(Dict("choices" => [Dict("delta" => Dict("content" => "Hello"))])), "\n\n"))
+                write(http, string("data: ", JSON.json(Dict("choices" => [Dict("delta" => Dict("content" => " world"), "finish_reason" => "stop")])), "\n\n"))
                 write(http, "data: [DONE]\n\n")
                 return
             end
@@ -47,11 +47,11 @@ end
                 "choices" => [Dict("message" => Dict("role" => "assistant", "content" => "Hi there"), "finish_reason" => "stop")],
                 "usage" => Dict("prompt_tokens" => 3, "completion_tokens" => 2, "total_tokens" => 5),
             )
-            _send(JSON3.write(resp))
+            _send(JSON.json(resp))
         elseif occursin("/embeddings", target)
-            _send(JSON3.write(Dict("data" => [Dict("embedding" => [0.1, 0.2, 0.3])])))
+            _send(JSON.json(Dict("data" => [Dict("embedding" => [0.1, 0.2, 0.3])])))
         elseif occursin("/models", target)
-            _send(JSON3.write(Dict("data" => [Dict("id" => "mock-model")])))
+            _send(JSON.json(Dict("data" => [Dict("id" => "mock-model")])))
         else
             HTTP.setstatus(http, 404)
             HTTP.startwrite(http)

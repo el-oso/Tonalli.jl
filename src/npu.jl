@@ -2,7 +2,7 @@
 # `flm validate --json`, reading /proc and /dev, and (advisory) ROCm detection — so it is
 # safe to run anywhere and degrades gracefully when tools are missing.
 
-using JSON3
+using JSON
 using Printf: @printf
 
 """Run `cmd`, capturing stdout; returns `(success::Bool, output::String)`."""
@@ -84,12 +84,12 @@ function tonalli_doctor(; show::Bool = true)
         ok, out = _capture(`$flm validate --json`)
         if ok && !isempty(out)
             try
-                j = JSON3.read(out)
-                validate_ready = get(j, :ready, false)
-                fw = get(j, :all_fw_ok, false)
-                kok = get(j, :kernel_ok, false)
-                mok = get(j, :memlock_ok, false)
-                detail = "ready=$(validate_ready) fw_ok=$fw kernel_ok=$kok memlock_ok=$mok kernel=$(get(j, :kernel, "?"))"
+                j = JSON.parse(out)
+                validate_ready = get(j, "ready", false)
+                fw = get(j, "all_fw_ok", false)
+                kok = get(j, "kernel_ok", false)
+                mok = get(j, "memlock_ok", false)
+                detail = "ready=$(validate_ready) fw_ok=$fw kernel_ok=$kok memlock_ok=$mok kernel=$(get(j, "kernel", "?"))"
                 push!(
                     checks, CheckResult(
                         "flm validate", validate_ready, detail,

@@ -1,9 +1,12 @@
 # Minimal OpenAI-compatible HTTP client, shared by every server backend (FastFlowLM,
 # Lemonade, Ollama all expose an OpenAI `/v1` surface). Handles chat/completions,
 # embeddings, model listing, and Server-Sent-Events streaming.
+#
+# JSON via JSON.jl (v1.6): objects materialize as `JSON.Object{String,Any}` (String keys),
+# so all access below is by String key.
 
 using HTTP
-using JSON3
+using JSON
 
 """
     OpenAIClient(base_url; api_key, timeout)
@@ -20,13 +23,18 @@ function OpenAIClient(base_url::AbstractString; api_key::AbstractString = "sk-no
     return OpenAIClient(rstrip(base_url, '/'), api_key, timeout)
 end
 
+# `Connection: close` is deliberate: FastFlowLM's server closes the socket after each
+# response, so HTTP.jl's default keep-alive pool would hand a subsequent request a dead
+# connection (IOError: stream). Closing per request mirrors curl and is robust across
+# backends; the per-call cost is negligible for LLM latencies.
 _headers(c::OpenAIClient) = [
     "Content-Type" => "application/json",
     "Authorization" => "Bearer $(c.api_key)",
+    "Connection" => "close",
 ]
 
-"""Dig a nested value out of a parsed-JSON object, returning `default` if any hop fails."""
-function _dig(obj, path::Vararg{Union{Symbol, Int}}; default = nothing)
+"""Dig a nested value out of a parsed-JSON value, returning `default` if any hop fails."""
+function _dig(obj, path::Vararg{Union{AbstractString, Int}}; default = nothing)
     cur = obj
     for k in path
         try
@@ -44,10 +52,23 @@ function _dig(obj, path::Vararg{Union{Symbol, Int}}; default = nothing)
     return cur
 end
 
+# Surface a backend error body (`{"error": {...}}`) as a Julia exception instead of
+# silently returning empty content.
+function _check_error(j)
+    err = _dig(j, "error")
+    if err !== nothing
+        msg = _dig(err, "message"; default = string(err))
+        throw(ErrorException("backend error: $msg"))
+    end
+    return j
+end
+
 function _post(c::OpenAIClient, path::AbstractString, body)
     url = string(c.base_url, path)
-    resp = HTTP.post(url, _headers(c), JSON3.write(body); readtimeout = c.timeout, retry = false)
-    return JSON3.read(resp.body)
+    resp = HTTP.post(url, _headers(c), JSON.json(body); readtimeout = c.timeout, retry = false, status_exception = false)
+    j = JSON.parse(resp.body)
+    resp.status >= 400 && _check_error(j)
+    return _check_error(j)
 end
 
 """Reachability probe: GET `/models`, returning `true` on HTTP 2xx."""
@@ -99,20 +120,20 @@ function _chat_stream(c::OpenAIClient, model::AbstractString, body::Dict, on_tok
         (isempty(data) || data == "[DONE]") && continue
         local j
         try
-            j = JSON3.read(data)
+            j = JSON.parse(data)
         catch
             continue
         end
-        tok = _dig(j, :choices, 1, :delta, :content; default = "")
+        tok = _dig(j, "choices", 1, "delta", "content"; default = "")
         if tok isa AbstractString && !isempty(tok)
             print(buf, tok)
             on_token === nothing || on_token(tok)
         end
-        fr = _dig(j, :choices, 1, :finish_reason)
+        fr = _dig(j, "choices", 1, "finish_reason")
         fr isa AbstractString && (finish = fr)
     end
     HTTP.open("POST", url, _headers(c); readtimeout = c.timeout, retry = false) do io
-        write(io, JSON3.write(body))
+        write(io, JSON.json(body))
         HTTP.closewrite(io)
         HTTP.startread(io)
         while !eof(io)
@@ -125,11 +146,11 @@ function _chat_stream(c::OpenAIClient, model::AbstractString, body::Dict, on_tok
         isempty(pending) || consume(pending)
     end
     text = String(take!(buf))
-    # Synthesize an OpenAI-shaped object so callers parse streamed + non-streamed uniformly.
-    # Symbol keys to match `_dig`/`parse_chat_response` (which use the JSON3 Symbol access).
-    return Dict{Symbol, Any}(
-        :model => model,
-        :choices => [Dict{Symbol, Any}(:message => Dict{Symbol, Any}(:role => "assistant", :content => text), :finish_reason => finish)],
+    # Synthesize an OpenAI-shaped object (String keys) so callers parse streamed and
+    # non-streamed responses through the same `parse_chat_response`.
+    return Dict{String, Any}(
+        "model" => model,
+        "choices" => [Dict{String, Any}("message" => Dict{String, Any}("role" => "assistant", "content" => text), "finish_reason" => finish)],
     )
 end
 
@@ -141,27 +162,27 @@ end
 """GET `/models`; returns the parsed response object."""
 function models(c::OpenAIClient)
     resp = HTTP.get(string(c.base_url, "/models"), _headers(c); readtimeout = c.timeout, retry = false)
-    return JSON3.read(resp.body)
+    return JSON.parse(resp.body)
 end
 
 # ── Shared parsing helpers (used by every backend) ──────────────────────────
 
-"""Build a [`ChatResponse`](@ref) from an OpenAI-shaped (possibly `Dict`) chat object."""
+"""Build a [`ChatResponse`](@ref) from an OpenAI-shaped chat object (String-keyed)."""
 function parse_chat_response(j, fallback_model::AbstractString)
-    content = _dig(j, :choices, 1, :message, :content; default = "")
+    content = _dig(j, "choices", 1, "message", "content"; default = "")
     content === nothing && (content = "")
-    finish = _dig(j, :choices, 1, :finish_reason; default = "stop")
+    finish = _dig(j, "choices", 1, "finish_reason"; default = "stop")
     usage = nothing
-    if _dig(j, :usage) !== nothing
+    if _dig(j, "usage") !== nothing
         usage = Usage(
-            Int(_dig(j, :usage, :prompt_tokens; default = 0)),
-            Int(_dig(j, :usage, :completion_tokens; default = 0)),
-            Int(_dig(j, :usage, :total_tokens; default = 0)),
+            Int(_dig(j, "usage", "prompt_tokens"; default = 0)),
+            Int(_dig(j, "usage", "completion_tokens"; default = 0)),
+            Int(_dig(j, "usage", "total_tokens"; default = 0)),
         )
     end
     return ChatResponse(
         String(content),
-        String(_dig(j, :model; default = fallback_model)),
+        String(_dig(j, "model"; default = fallback_model)),
         String(finish === nothing ? "stop" : finish),
         usage,
         j,

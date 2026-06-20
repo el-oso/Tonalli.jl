@@ -33,8 +33,8 @@ function list_models(b::OllamaBackend)
     catch
         return out
     end
-    for d in get(j, :data, [])
-        push!(out, ModelInfo(String(get(d, :id, "?")), true, "", "", "", 0, 0.0))
+    for d in get(j, "data", [])
+        push!(out, ModelInfo(String(get(d, "id", "?")), true, "", "", "", 0, 0.0))
     end
     return out
 end

@@ -81,8 +81,8 @@ to have been started with embedding support (`serve!(b; embed=true)` or `flm ser
 function embed(b::FastFlowLM, input; model::AbstractString = "")
     m = _model_or(b, model)
     j = embeddings(b.client, m, input)
-    data = _dig(j, :data; default = [])
-    return [collect(Float64.(_dig(d, :embedding; default = Float64[]))) for d in data]
+    data = _dig(j, "data"; default = [])
+    return [collect(Float64.(_dig(d, "embedding"; default = Float64[]))) for d in data]
 end
 
 # ── Model management (via the flm CLI) ───────────────────────────────────────
@@ -92,21 +92,21 @@ function list_models(b::FastFlowLM)
     ok, out = _capture(`$(b.binary) list --json`)
     (ok && !isempty(out)) || return ModelInfo[]
     j = try
-        JSON3.read(out)
+        JSON.parse(out)
     catch
         return ModelInfo[]
     end
     infos = ModelInfo[]
-    for m in get(j, :models, [])
+    for m in get(j, "models", [])
         push!(
             infos, ModelInfo(
-                String(get(m, :name, get(m, :model, "?"))),
-                Bool(get(m, :installed, false)),
-                String(_dig(m, :details, :family; default = "")),
-                String(_dig(m, :details, :parameter_size; default = "")),
-                String(_dig(m, :details, :quantization_level; default = "")),
-                Int(get(m, :default_context_length, 0)),
-                Float64(get(m, :footprint, 0.0)),
+                String(get(m, "name", get(m, "model", "?"))),
+                Bool(get(m, "installed", false)),
+                String(_dig(m, "details", "family"; default = "")),
+                String(_dig(m, "details", "parameter_size"; default = "")),
+                String(_dig(m, "details", "quantization_level"; default = "")),
+                Int(get(m, "default_context_length", 0)),
+                Float64(get(m, "footprint", 0.0)),
             ),
         )
     end
