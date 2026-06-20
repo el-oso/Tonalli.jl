@@ -1,0 +1,11 @@
+/Manifest.toml
+/test/Manifest.toml
+/docs/Manifest.toml
+/docs/build/
+/docs/node_modules/
+/docs/.vitepress/cache/
+/docs/.vitepress/dist/
+*.so
+*.cov
+.DS_Store
+tonalli_lora_out/

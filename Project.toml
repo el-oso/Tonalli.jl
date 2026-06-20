@@ -1,0 +1,32 @@
+name = "Tonalli"
+uuid = "8fb3dae7-4b62-4c13-ac21-c70ee8bc898c"
+version = "0.1.0"
+authors = ["el-oso <el-oso@users.noreply.github.com>"]
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+GGUFFiles = "64b78412-f075-48b3-a385-7ef9f8f02b20"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+HuggingFaceApi = "3cc741c3-0c9d-4fbe-84fa-cdec264173de"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+TypeContracts = "c7a3f1e2-84b5-4d69-9e0a-1f2b3c4d5e6f"
+
+[weakdeps]
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+
+[extensions]
+TonalliFineTuneExt = "PythonCall"
+
+[compat]
+GGUFFiles = "0.1"
+HTTP = "1"
+HuggingFaceApi = "0.1"
+JSON3 = "1"
+PythonCall = "0.9"
+TypeContracts = "0.13"
+julia = "1.10"
+
+[apps.tonalli]

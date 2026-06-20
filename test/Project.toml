@@ -1,0 +1,17 @@
+# Test environment — run with: julia --project=test test/runtests.jl
+[deps]
+GGUFFiles = "64b78412-f075-48b3-a385-7ef9f8f02b20"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Tonalli = "8fb3dae7-4b62-4c13-ac21-c70ee8bc898c"
+TypeContracts = "c7a3f1e2-84b5-4d69-9e0a-1f2b3c4d5e6f"
+
+[sources]
+Tonalli = {path = ".."}
+
+[compat]
+ReTestItems = "1"
+julia = "1.10"
