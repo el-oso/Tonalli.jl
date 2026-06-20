@@ -1,7 +1,10 @@
 # Tonalli.jl
 
+[![Dev docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://el-oso.github.io/Tonalli.jl/dev/)
 [![CI](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml)
-[![Docs](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml)
+[![Docs build](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml)
+
+📖 **Documentation: <https://el-oso.github.io/Tonalli.jl/dev/>**
 
 Run and fine-tune LLMs on **AMD Ryzen AI** hardware — the NPU (XDNA 2) and iGPU — from Julia.
 

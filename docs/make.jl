@@ -3,13 +3,15 @@ using Documenter
 using DocumenterVitepress
 
 makedocs(;
-    sitename = "Tonalli.jl",
-    authors = "el-oso",
     modules = [Tonalli],
+    authors = "el-oso",
+    repo = "https://github.com/el-oso/Tonalli.jl",
+    sitename = "Tonalli.jl",
     format = DocumenterVitepress.MarkdownVitepress(
-        repo = "github.com/el-oso/Tonalli.jl",
+        repo = "https://github.com/el-oso/Tonalli.jl",
         devbranch = "master",
         devurl = "dev",
+        deploy_url = "el-oso.github.io/Tonalli.jl",
     ),
     pages = [
         "Home" => "index.md",
@@ -23,10 +25,11 @@ makedocs(;
     warnonly = true,
 )
 
-deploydocs(;
+# DocumenterVitepress.deploydocs (NOT Documenter.deploydocs): it post-processes the
+# VitePress version-folder build into the final gh-pages layout (dev/index.html redirect,
+# .nojekyll, correct base) — plain Documenter.deploydocs leaves content stranded in dev/1/.
+DocumenterVitepress.deploydocs(;
     repo = "github.com/el-oso/Tonalli.jl",
-    target = "build",
     devbranch = "master",
-    branch = "gh-pages",
     push_preview = true,
 )

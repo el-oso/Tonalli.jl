@@ -23,9 +23,7 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      # No actions/setup-node: DocumenterVitepress bundles Node via NodeJS_20_jll.
       - name: Instantiate docs environment
         run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
       - name: Build and deploy (DocumenterVitepress)

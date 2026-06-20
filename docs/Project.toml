@@ -5,3 +5,7 @@ Tonalli = "8fb3dae7-4b62-4c13-ac21-c70ee8bc898c"
 
 [sources]
 Tonalli = {path = ".."}
+
+[compat]
+Documenter = "1"
+DocumenterVitepress = "0.3"
