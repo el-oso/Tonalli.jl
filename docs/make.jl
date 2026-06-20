@@ -7,11 +7,14 @@ makedocs(;
     authors = "el-oso",
     repo = "https://github.com/el-oso/Tonalli.jl",
     sitename = "Tonalli.jl",
+    # No `deploy_url`: for a standard github.io *project* site, DocumenterVitepress derives
+    # the base path as "/<repo>/<devurl>/" from `repo`. Setting deploy_url (esp. without a
+    # scheme) bakes the host into the asset base (/el-oso.github.io/Tonalli.jl/dev/) and the
+    # theme assets 404 → unstyled page.
     format = DocumenterVitepress.MarkdownVitepress(
         repo = "https://github.com/el-oso/Tonalli.jl",
         devbranch = "master",
         devurl = "dev",
-        deploy_url = "el-oso.github.io/Tonalli.jl",
     ),
     pages = [
         "Home" => "index.md",
