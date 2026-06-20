@@ -1,5 +1,8 @@
 # Tonalli.jl
 
+[![CI](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml)
+[![Docs](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml)
+
 Run and fine-tune LLMs on **AMD Ryzen AI** hardware — the NPU (XDNA 2) and iGPU — from Julia.
 
 The Julia ecosystem has clients for LLM servers but no first-class story for AMD NPU
