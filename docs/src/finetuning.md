@@ -1,62 +1,70 @@
 # Fine-tuning
 
-## The honest hardware story
+## Policy: no Python
 
-The XDNA NPU is, in practice, an **inference accelerator**. On-NPU *training* is research
-only. AMD's actual supported workflow — and Tonalli's — is:
+Tonalli uses **no Python in any capacity** — only `.so` libraries (via `ccall`) and
+command-line tools. The Python ML stack (PyTorch / transformers / peft / trl) is therefore
+**out of scope**. Fine-tuning is exposed as an interface that drives an *external
+command-line trainer*, with a native pure-Julia trainer planned (see [Roadmap](/roadmap)).
 
-> **LoRA fine-tune on the iGPU (ROCm) or CPU → deploy the adapter for NPU inference.**
+## The hardware story
 
-So fine-tuning runs on your **gfx115x iGPU** via ROCm PyTorch, and the resulting adapter is
-merged/converted for FastFlowLM to serve on the NPU.
+The XDNA NPU is, in practice, an **inference accelerator** — training runs on the iGPU
+(ROCm) or CPU, and the resulting adapter is merged/converted for NPU inference. Tonalli
+does not bundle a trainer (there is no mature non-Python LoRA CLI for AMD yet), so you point
+it at one.
 
-## Requirements
+## `CommandLineTuner`
 
-Fine-tuning lives in the `TonalliFineTuneExt` extension, loaded when `PythonCall` is
-present. You need a Python environment with a **ROCm build of PyTorch** plus
-`transformers`, `peft`, `trl`, and `datasets`.
-
-```julia
-using PythonCall, Tonalli
-```
-
-RDNA 3.5 iGPUs (gfx1150/1151/1152) often need `HSA_OVERRIDE_GFX_VERSION` set for ROCm.
-[`tonalli_doctor`](@ref) flags ROCm availability.
-
-## Run a LoRA fine-tune
+`CommandLineTuner` runs an external CLI trainer as a subprocess and returns the produced
+adapter directory. You provide a `command` builder, `(::LoRAConfig) -> Cmd`:
 
 ```julia
+using Tonalli
+
 cfg = LoRAConfig(
-    base_model    = "meta-llama/Llama-3.2-1B-Instruct",
-    dataset       = "train.jsonl",     # {"text": ...} or {"messages": [...]} per line
-    output_dir    = "out",
-    rank          = 16,
-    epochs        = 1,
-    target_device = "rocm",            # or "cpu"
+    base_model = "meta-llama/Llama-3.2-1B-Instruct",
+    dataset    = "train.jsonl",     # {"text": ...} or {"messages": [...]} per line
+    output_dir = "out",
+    rank       = 16,
+    epochs     = 1,
 )
-adapter = finetune(ROCmLoRATuner(cfg))
+
+tuner = CommandLineTuner(cfg; command = c -> `my-trainer
+    --model $(c.base_model) --data $(c.dataset)
+    --out $(c.output_dir) --rank $(c.rank) --epochs $(c.epochs)`)
+
+adapter = finetune(tuner)   # returns "<output_dir>/adapter"
 ```
 
-Or from a TOML file:
+`finetune` throws if the command is malformed or the trainer exits non-zero.
+
+## From the CLI
+
+`tonalli finetune <config.toml>` reads a `trainer` argv from the `[lora]` table and
+substitutes config placeholders:
 
 ```toml
-# tune.toml
 [lora]
 base_model = "meta-llama/Llama-3.2-1B-Instruct"
 dataset = "train.jsonl"
+output_dir = "out"
 rank = 16
 epochs = 1
+trainer = ["my-trainer", "--model", "{base_model}", "--data", "{dataset}",
+           "--out", "{output_dir}", "--rank", "{rank}", "--epochs", "{epochs}"]
 ```
+
+Placeholders: `{base_model} {dataset} {output_dir} {rank} {alpha} {epochs} {lr}
+{max_seq_len} {device}`. The argv is run directly (no shell), so paths with spaces are safe.
 
 ```bash
 tonalli finetune tune.toml
 ```
 
-`finetune` returns the path to the saved adapter directory (safetensors).
-
 ## Serving the adapted model on the NPU
 
-After fine-tuning, merge the LoRA adapter into the base weights and convert to FastFlowLM's
-model format, then `serve!` as usual. (FastFlowLM adapter-at-serve support is evolving; the
-merge-and-convert path always works.) See [Roadmap](/roadmap) for the native-Julia training
-track that will remove the Python dependency entirely.
+After training, merge the LoRA adapter into the base weights and convert to FastFlowLM's
+model format, then [`serve!`](@ref) as usual. (FastFlowLM adapter-at-serve support is
+evolving; merge-and-convert always works.) See [Roadmap](/roadmap) for the native-Julia
+LoRA trainer that will remove the need for an external tool entirely.

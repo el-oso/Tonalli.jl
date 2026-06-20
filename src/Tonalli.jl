@@ -6,8 +6,9 @@ A Julia toolkit for running and fine-tuning LLMs on AMD Ryzen AI hardware.
 `v0.1` is an *integration layer*: it gives one unified, contract-checked Julia API over
 best-in-class runtimes — [FastFlowLM](https://fastflowlm.com) for NPU (XDNA2) inference,
 plus interfaces for AMD Lemonade and Ollama/llama.cpp — together with Hugging Face model
-download (`HuggingFaceApi`), GGUF metadata (`GGUFFiles`), and ROCm LoRA fine-tuning on the
-iGPU (via the `PythonCall`-triggered extension).
+download (`HuggingFaceApi`), GGUF metadata (`GGUFFiles`), and a fine-tuning interface that
+drives external command-line trainers. The project uses no Python in any capacity — only
+`.so` libraries (via `ccall`) and command-line tools.
 
 Start with [`tonalli_doctor`](@ref) to check your NPU/iGPU stack.
 """
@@ -43,6 +44,6 @@ export tonalli_doctor, print_report
 export hf_download, gguf_metadata, HFModel
 
 # Fine-tuning
-export LoRAConfig, ROCmLoRATuner, finetune
+export LoRAConfig, CommandLineTuner, finetune
 
 end # module Tonalli

@@ -31,7 +31,7 @@ best-in-class runtimes.
 | **Portable fallback** | Ollama / llama.cpp *(interface ready)* |
 | **Model download** | Hugging Face Hub via `HuggingFaceApi.jl` |
 | **GGUF inspection** | `GGUFFiles.jl` |
-| **Fine-tuning** | LoRA on the iGPU (ROCm) → serve on the NPU |
+| **Fine-tuning** | `CommandLineTuner` → external CLI trainer → serve on the NPU |
 | **Diagnostics** | [`tonalli_doctor`](@ref) — one command to validate the whole stack |
 
 All backends implement a single [`AbstractInferenceBackend`](@ref) contract

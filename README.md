@@ -12,7 +12,10 @@ The Julia ecosystem has clients for LLM servers but no first-class story for AMD
 inference or local fine-tuning. Tonalli fills that gap. `v0.1` is an **integration layer**:
 one unified, contract-checked API over [FastFlowLM](https://fastflowlm.com) (NPU), with
 interfaces ready for AMD Lemonade and Ollama/llama.cpp, plus Hugging Face download, GGUF
-inspection, and ROCm LoRA fine-tuning.
+inspection, and a fine-tuning hook for external CLI trainers.
+
+> **No Python.** Tonalli uses only `.so` libraries (via `ccall`) and command-line tools —
+> never an embedded Python runtime.
 
 ```julia
 using Tonalli
@@ -33,14 +36,15 @@ stop!(b)
   FastFlowLM / Lemonade / Ollama without changing your code.
 - **`tonalli_doctor`** — one call validates driver, firmware, memlock, device, and ROCm.
 - **Hugging Face + GGUF** — `hf_download`, `gguf_metadata`.
-- **Fine-tuning** — LoRA on the iGPU (ROCm) → serve on the NPU (`PythonCall` extension).
+- **Fine-tuning** — `CommandLineTuner` drives an external CLI trainer (no bundled trainer;
+  pure-Julia LoRA on the roadmap) → serve the adapter on the NPU.
 - **`tonalli` CLI** — `doctor`, `pull`, `serve`, `chat`, `finetune`.
 
 ## Requirements
 
 AMD Ryzen AI 300-series (or other XDNA 2) chip; Linux kernel 7.0+ with `amdxdna`; AMD XRT;
-NPU firmware ≥ 1.1.0.0; FastFlowLM (`flm`) on `PATH`. ROCm + ROCm PyTorch for local
-fine-tuning. Run `tonalli doctor` to check.
+NPU firmware ≥ 1.1.0.0; FastFlowLM (`flm`) on `PATH`. For fine-tuning, an external
+command-line trainer of your choice. Run `tonalli doctor` to check.
 
 ## Status
 

@@ -26,9 +26,20 @@ end
     end
 end
 
-@testitem "finetune errors clearly without PythonCall" begin
+@testitem "CommandLineTuner runs an external CLI trainer" begin
     using Tonalli
-    t = ROCmLoRATuner(LoRAConfig(base_model = "x", dataset = "y.jsonl"))
+    dir = mktempdir()
+    cfg = LoRAConfig(base_model = "x", dataset = "y.jsonl", output_dir = dir)
+    # The "trainer" is just a CLI tool (mkdir) creating the adapter dir — no Python.
+    t = CommandLineTuner(cfg; command = c -> `mkdir -p $(joinpath(c.output_dir, "adapter"))`)
+    out = finetune(t)
+    @test out == abspath(joinpath(dir, "adapter"))
+    @test isdir(out)
+end
+
+@testitem "CommandLineTuner surfaces a failing trainer" begin
+    using Tonalli
+    t = CommandLineTuner(LoRAConfig(base_model = "x", dataset = "y.jsonl"); command = c -> `false`)
     @test_throws ErrorException finetune(t)
 end
 

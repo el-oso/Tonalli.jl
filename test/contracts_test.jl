@@ -14,9 +14,9 @@ end
     @test res.satisfied || error("HFModel missing: $(res.missing_methods)")
 end
 
-@testitem "contracts: ROCmLoRATuner satisfies AbstractFineTuner" begin
-    using Tonalli: ROCmLoRATuner, AbstractFineTuner
+@testitem "contracts: CommandLineTuner satisfies AbstractFineTuner" begin
+    using Tonalli: CommandLineTuner, AbstractFineTuner
     using TypeContracts: satisfies
-    res = satisfies(ROCmLoRATuner, AbstractFineTuner)
-    @test res.satisfied || error("ROCmLoRATuner missing: $(res.missing_methods)")
+    res = satisfies(CommandLineTuner, AbstractFineTuner)
+    @test res.satisfied || error("CommandLineTuner missing: $(res.missing_methods)")
 end

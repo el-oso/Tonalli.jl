@@ -50,7 +50,7 @@ HFModel
 
 ```@docs
 LoRAConfig
-ROCmLoRATuner
+CommandLineTuner
 finetune
 ```
 

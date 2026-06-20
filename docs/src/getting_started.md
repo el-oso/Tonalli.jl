@@ -12,7 +12,9 @@ You need, on Linux:
 - The **AMD XRT** runtime (`libxrt2`, `libxrt-npu2`).
 - **NPU firmware ≥ 1.1.0.0** and `memlock` raised (`ulimit -l unlimited`).
 - **[FastFlowLM](https://fastflowlm.com/docs/install_lin/)** (`flm` on `PATH`).
-- For **local fine-tuning**: ROCm + a ROCm build of PyTorch on the iGPU (gfx115x).
+- For **local fine-tuning**: an external command-line trainer of your choice (Tonalli
+  bundles none and uses no Python). ROCm on the iGPU (gfx115x) is what such a trainer would
+  target; `tonalli doctor` reports its availability.
 
 ## Install
 

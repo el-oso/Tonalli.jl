@@ -1,7 +1,7 @@
-# Fine-tuning orchestration. The honest v0.1 path: LoRA fine-tune on the iGPU (ROCm) or
-# CPU, then deploy the adapter for NPU inference. The actual training loop lives in
-# `ext/TonalliFineTuneExt.jl` (loaded when `PythonCall` is present) because it drives a
-# ROCm PyTorch + transformers/peft stack; this file defines the config and entry point.
+# Fine-tuning orchestration. Project policy: NO Python in any capacity — only .so libraries
+# (via ccall) and command-line tools. So Tonalli does not embed a trainer; it drives an
+# external command-line trainer through `CommandLineTuner`, and the long-term plan is a
+# pure-Julia LoRA trainer (Enzyme/Optimisers on AMDGPU.jl) — see the docs roadmap.
 
 using TOML
 
@@ -10,6 +10,7 @@ using TOML
 
 Configuration for a LoRA fine-tune. `dataset` is a path to a JSONL file of
 `{"text": ...}` or `{"messages": [...]}` records. `target_device` ∈ `("rocm", "cpu")`.
+Consumed by a [`CommandLineTuner`](@ref)'s command builder.
 """
 struct LoRAConfig
     base_model::String
@@ -51,35 +52,40 @@ function LoRAConfig(path::AbstractString)
 end
 
 """
-    ROCmLoRATuner(config::LoRAConfig)
+    CommandLineTuner(config; command)
 
-LoRA fine-tuner targeting the local AMD iGPU via ROCm (or CPU). Calling [`finetune`](@ref)
-requires the `PythonCall` extension to be loaded.
+Fine-tune by invoking an **external command-line trainer** — no Python, no in-process
+runtime; just a CLI tool (or a `.so`-backed binary) that Tonalli runs as a subprocess.
+
+`command` is a function `(::LoRAConfig) -> Cmd` that builds the trainer invocation from the
+config. [`finetune`](@ref) runs it and returns the produced adapter directory
+(`<output_dir>/adapter`).
+
+Tonalli ships no bundled trainer (there is no mature non-Python LoRA CLI for AMD yet), so
+you supply one — e.g. a future `flm finetune`, a llama.cpp finetune binary, or your own
+tool. A native pure-Julia LoRA trainer is on the roadmap.
+
+```julia
+t = CommandLineTuner(cfg; command = c -> `my-trainer --model \$(c.base_model) --data \$(c.dataset) --out \$(c.output_dir) --rank \$(c.rank)`)
+finetune(t)
+```
 """
-struct ROCmLoRATuner <: AbstractFineTuner
+struct CommandLineTuner <: AbstractFineTuner
     config::LoRAConfig
+    command::Function
 end
-ROCmLoRATuner(; kw...) = ROCmLoRATuner(LoRAConfig(; kw...))
+CommandLineTuner(config::LoRAConfig; command::Function) = CommandLineTuner(config, command)
 
 """
-    finetune(t::ROCmLoRATuner) -> String
+    finetune(t::CommandLineTuner) -> String
 
-Run the LoRA fine-tune and return the path to the produced adapter directory. Requires
-`using PythonCall` (loads `TonalliFineTuneExt`) and a ROCm PyTorch + transformers + peft + trl
-environment.
+Run the external trainer and return the path to the produced adapter directory.
+Throws if the command is malformed or the trainer exits non-zero.
 """
-finetune(t::ROCmLoRATuner) = _finetune_impl(t)
-
-# Overridden by TonalliFineTuneExt when PythonCall is loaded.
-function _finetune_impl(::ROCmLoRATuner)
-    return error(
-        """
-        Fine-tuning requires the PythonCall extension. Enable it with:
-
-            julia> using PythonCall, Tonalli
-
-        and provide a Python environment with ROCm PyTorch, `transformers`, `peft`, `trl`,
-        and `datasets` installed. See the Tonalli docs "Fine-tuning" guide.
-        """
-    )
+function finetune(t::CommandLineTuner)
+    cmd = t.command(t.config)
+    cmd isa Cmd || throw(ArgumentError("CommandLineTuner.command must return a `Cmd`, got $(typeof(cmd))"))
+    ok = success(pipeline(ignorestatus(cmd); stdout = stdout, stderr = stderr))
+    ok || error("fine-tune command failed (non-zero exit): $cmd")
+    return abspath(joinpath(t.config.output_dir, "adapter"))
 end

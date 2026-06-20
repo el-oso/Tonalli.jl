@@ -12,7 +12,7 @@ Commands:
   pull <tag>                 Download a FastFlowLM model (e.g. llama3.2:1b)
   serve <tag> [--port N]     Start an NPU server for <tag> and keep it running
   chat <tag> [prompt...]     Chat with <tag> (one-shot if prompt given, else REPL)
-  finetune <config.toml>     Run a LoRA fine-tune (needs PythonCall + ROCm)
+  finetune <config.toml>     Run a LoRA fine-tune via an external CLI trainer
   help                       Show this message
 """
 
@@ -122,7 +122,40 @@ end
 function _cli_finetune(rest::Vector{String})::Cint
     isempty(rest) && (println(stderr, "usage: tonalli finetune <config.toml>"); return 2)
     cfg = LoRAConfig(rest[1])
-    out = finetune(ROCmLoRATuner(cfg))
+    t = TOML.parsefile(rest[1])
+    lora = get(t, "lora", t)
+    trainer = get(lora, "trainer", nothing)
+    if trainer === nothing
+        println(
+            stderr,
+            """
+            No `trainer` command in [lora]. Tonalli bundles no trainer (no Python by policy);
+            point it at an external CLI trainer, e.g.:
+
+              [lora]
+              base_model = "..."
+              dataset = "train.jsonl"
+              trainer = ["my-trainer", "--model", "{base_model}", "--data", "{dataset}", "--out", "{output_dir}", "--rank", "{rank}"]
+
+            Placeholders: {base_model} {dataset} {output_dir} {rank} {alpha} {epochs} {lr} {max_seq_len} {device}.
+            Or drive a CommandLineTuner programmatically. A pure-Julia trainer is on the roadmap.
+            """
+        )
+        return 1
+    end
+    out = finetune(CommandLineTuner(cfg; command = c -> _build_trainer_cmd(trainer, c)))
     println("Adapter written to: ", out)
     return 0
+end
+
+# Substitute config placeholders into a TOML-provided trainer argv (array of strings, or a
+# whitespace-split string) and build a Cmd. No shell — direct argv, so paths are safe.
+function _build_trainer_cmd(trainer, c::LoRAConfig)
+    subs = [
+        "{base_model}" => c.base_model, "{dataset}" => c.dataset, "{output_dir}" => c.output_dir,
+        "{rank}" => string(c.rank), "{alpha}" => string(c.alpha), "{epochs}" => string(c.epochs),
+        "{lr}" => string(c.learning_rate), "{max_seq_len}" => string(c.max_seq_len), "{device}" => c.target_device,
+    ]
+    argv = trainer isa AbstractString ? split(trainer) : trainer
+    return Cmd(String[replace(string(a), subs...) for a in argv])
 end

@@ -5,7 +5,7 @@
 - ✅ FastFlowLM NPU backend (chat, complete, embed, streaming, model mgmt, lifecycle)
 - ✅ `tonalli_doctor` stack diagnostics
 - ✅ Hugging Face download + GGUF metadata
-- ✅ LoRA fine-tuning on the iGPU (ROCm) via the PythonCall extension
+- ✅ Fine-tuning interface (`CommandLineTuner`) driving external CLI trainers — no Python
 - ✅ `AbstractInferenceBackend` contract + `tonalli` CLI
 - 🚧 Lemonade & Ollama backends: managed launch + `pull_model`
 - 🚧 Adapter → NPU-serve bridge (merge + convert; track FastFlowLM adapter support)
@@ -21,6 +21,7 @@ contracts (no API churn for users):
   `AMDGPU.jl` (gfx1152 iGPU first, CPU fallback). NPU acceleration via the
   MLIR-AIE / IRON / XRT toolchain is a later, research-grade step.
 - **Native fine-tuning** — LoRA with `Enzyme`/`Zygote` + `Optimisers.jl` on the iGPU,
-  removing the Python dependency entirely. This is the real "fill the gap" payoff.
+  removing the need for an external trainer entirely (and staying Python-free). This is the
+  real "fill the gap" payoff.
 
 When it lands, it slots in as another `AbstractInferenceBackend` / `AbstractFineTuner`.
