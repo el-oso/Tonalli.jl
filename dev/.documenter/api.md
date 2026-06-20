@@ -93,7 +93,7 @@ A handle to a FastFlowLM runtime. Construct it, optionally [`serve!`](/api#Tonal
 `pmode` ∈ `("powersaver", "balanced", "performance", "turbo")`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L14-L22" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L14-L22" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -110,7 +110,7 @@ LemonadeBackend(model=""; host="127.0.0.1", port=8000)
 Client for a running AMD Lemonade server. Inference works against an existing server; `pull_model`/`serve!` are not yet implemented.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/lemonade.jl#L5-L10" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/lemonade.jl#L5-L10" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -127,7 +127,7 @@ OllamaBackend(model=""; host="127.0.0.1", port=11434)
 Client for a running Ollama server (OpenAI-compatible endpoint). The portable fallback backend — no NPU acceleration.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/ollama.jl#L5-L10" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/ollama.jl#L5-L10" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -146,7 +146,7 @@ chat(b::FastFlowLM, messages; model="", temperature, max_tokens, stream, on_toke
 Run a chat completion. `messages` may be a `String`, a `ChatMessage`, or a vector of `ChatMessage`/`Pair`/`Dict` (see `to_messages`).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L49-L54" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L49-L54" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -158,7 +158,7 @@ Run a chat completion. `messages` may be a `String`, a `ChatMessage`, or a vecto
 Single-prompt completion (wraps the prompt as one user turn).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L70" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L70" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -175,7 +175,7 @@ embed(b::FastFlowLM, input; model="")
 Embedding vector(s) for `input` (a `String` or vector of `String`). Requires the server to have been started with embedding support (`serve!(b; embed=true)` or `flm serve … --embed 1`).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L75-L80" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L75-L80" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -187,7 +187,7 @@ Embedding vector(s) for `input` (a `String` or vector of `String`). Requires the
 List models known to FastFlowLM (parsed from `flm list --json`).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L90" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L90" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -199,7 +199,7 @@ List models known to FastFlowLM (parsed from `flm list --json`).
 Download a model by FastFlowLM tag (e.g. `"llama3.2:1b"`) via `flm pull`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L116" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L116" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -216,7 +216,7 @@ serve!(b::FastFlowLM; model="", embed=false, wait=true, timeout=120)
 Launch `flm serve` as a managed background process bound to `b.host`/`b.port`. When `wait=true`, blocks until the server answers `/models` (up to `timeout` seconds). Returns `b`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L127-L132" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L127-L132" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -228,7 +228,7 @@ Launch `flm serve` as a managed background process bound to `b.host`/`b.port`. W
 Stop the managed `flm serve` process, if any.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L154" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L154" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -240,7 +240,7 @@ Stop the managed `flm serve` process, if any.
 Backend + hardware readiness — delegates to [`tonalli_doctor`](/api#Tonalli.tonalli_doctor).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/backends/fastflowlm.jl#L122" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/backends/fastflowlm.jl#L122" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -261,7 +261,7 @@ Probe the AMD NPU + iGPU stack and return a [`HealthReport`](/api#Tonalli.Health
 `HealthReport.ready` reflects inference readiness on the NPU. Pass `show = false` to suppress printing.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/npu.jl#L35-L44" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/npu.jl#L35-L44" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -278,7 +278,7 @@ print_report(r::HealthReport; io = stdout)
 Pretty-print a [`HealthReport`](/api#Tonalli.HealthReport) with pass/fail markers and remediation advice.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/npu.jl#L139-L143" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/npu.jl#L139-L143" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -295,7 +295,7 @@ HealthReport(ready, checks)
 Aggregate diagnostic report. `ready` is the overall go/no-go for inference; `checks` carries the individual [`CheckResult`](/api#Tonalli.CheckResult)s. Render with [`print_report`](/api#Tonalli.print_report).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L64-L69" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L64-L69" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -307,7 +307,7 @@ Aggregate diagnostic report. `ready` is the overall go/no-go for inference; `che
 One diagnostic probe: a named check with pass/fail, detail, and remediation advice.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L56" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L56" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -326,7 +326,7 @@ hf_download(repo_id, filename; revision="main", token=nothing) -> String
 Download a single file from a Hugging Face repo and return its local cached path.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/hub.jl#L8-L12" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/hub.jl#L8-L12" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -343,7 +343,7 @@ gguf_metadata(path) -> Dict{String,Any}
 Read the key/value metadata block from a GGUF file (e.g. `general.architecture`, `*.context_length`).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/hub.jl#L35-L40" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/hub.jl#L35-L40" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -360,7 +360,7 @@ HFModel(repo_id; filename="", revision="main")
 A Hugging Face model source. With `filename` set, `resolve` downloads that file.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/hub.jl#L17-L21" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/hub.jl#L17-L21" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -379,7 +379,7 @@ LoRAConfig(; base_model, dataset, kwargs...)
 Configuration for a LoRA fine-tune. `dataset` is a path to a JSONL file of `{"text": ...}` or `{"messages": [...]}` records. `target_device` ∈ `("rocm", "cpu")`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/finetune.jl#L8-L13" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/finetune.jl#L8-L13" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -396,7 +396,7 @@ ROCmLoRATuner(config::LoRAConfig)
 LoRA fine-tuner targeting the local AMD iGPU via ROCm (or CPU). Calling [`finetune`](/api#Tonalli.finetune) requires the `PythonCall` extension to be loaded.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/finetune.jl#L53-L58" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/finetune.jl#L53-L58" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -413,7 +413,7 @@ finetune(t::ROCmLoRATuner) -> String
 Run the LoRA fine-tune and return the path to the produced adapter directory. Requires `using PythonCall` (loads `TonalliFineTuneExt`) and a ROCm PyTorch + transformers + peft + trl environment.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/finetune.jl#L64-L70" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/finetune.jl#L64-L70" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -434,7 +434,7 @@ A role-tagged chat turn. `role` is one of `"system"`, `"user"`, `"assistant"`, `
 Convenience constructors accept a `Pair`, so `ChatMessage(:user => "hi")` works.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L4-L10" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L4-L10" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -451,7 +451,7 @@ ChatResponse
 Result of a single completion. `raw` holds the backend's parsed JSON for callers that need fields Tonalli does not model.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L24-L29" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L24-L29" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -468,7 +468,7 @@ ModelInfo
 Metadata about a model known to a backend (mirrors FastFlowLM's `list --json`).
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L41-L45" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L41-L45" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -480,7 +480,7 @@ Metadata about a model known to a backend (mirrors FastFlowLM's `list --json`).
 Token accounting returned by a backend, when available.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/1c7876523716471bf66f3d174cf5d7711bedc56e/src/types.jl#L17" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/el-oso/Tonalli.jl/blob/9d2186707e15e7d3f9fc4ce69414e55a6b181d4c/src/types.jl#L17" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
