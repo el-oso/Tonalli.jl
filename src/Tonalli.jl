@@ -25,6 +25,7 @@ include("backends/fastflowlm.jl")
 include("backends/lemonade.jl")
 include("backends/ollama.jl")
 include("finetune.jl")
+include("rag.jl")
 include("cli.jl")
 
 # Core data types
@@ -45,5 +46,8 @@ export hf_download, gguf_metadata, HFModel
 
 # Fine-tuning
 export LoRAConfig, CommandLineTuner, finetune
+
+# RAG — Julia expert knowledge base
+export AbstractVectorStore, Chunk, VectorStore, ingest!, retrieve, build_rag_prompt, ask
 
 end # module Tonalli

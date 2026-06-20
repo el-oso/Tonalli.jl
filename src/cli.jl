@@ -7,13 +7,15 @@ tonalli — run & fine-tune LLMs on AMD Ryzen AI (NPU + iGPU)
 Usage: tonalli <command> [args]
 
 Commands:
-  doctor                     Check the NPU/iGPU stack (driver, firmware, ROCm)
-  list                       List FastFlowLM models (installed + available)
-  pull <tag>                 Download a FastFlowLM model (e.g. llama3.2:1b)
-  serve <tag> [--port N]     Start an NPU server for <tag> and keep it running
-  chat <tag> [prompt...]     Chat with <tag> (one-shot if prompt given, else REPL)
-  finetune <config.toml>     Run a LoRA fine-tune via an external CLI trainer
-  help                       Show this message
+  doctor                         Check the NPU/iGPU stack (driver, firmware, ROCm)
+  list                           List FastFlowLM models (installed + available)
+  pull <tag>                     Download a FastFlowLM model (e.g. llama3.2:1b)
+  serve <tag> [--port N]         Start an NPU server for <tag> and keep it running
+  chat <tag> [prompt...]         Chat with <tag> (one-shot if prompt given, else REPL)
+  finetune <config.toml>         Run a LoRA fine-tune via an external CLI trainer
+  ingest <store.bin> <path...>   Build/update a RAG vector store from .md/.jl files
+  ask <store.bin> "<question>"   Answer a question using the RAG store (gemma4-it:e4b)
+  help                           Show this message
 """
 
 function (@main)(args::Vector{String})::Cint
@@ -31,6 +33,8 @@ function _cli_run(args::Vector{String})::Cint
         cmd == "serve" && return _cli_serve(rest)
         cmd == "chat" && return _cli_chat(rest)
         cmd in ("finetune", "tune") && return _cli_finetune(rest)
+        cmd == "ingest" && return _cli_ingest(rest)
+        cmd == "ask" && return _cli_ask(rest)
         cmd in ("help", "-h", "--help") && (println(_CLI_USAGE); return 0)
     catch e
         println(stderr, "error: ", sprint(showerror, e))
@@ -145,6 +149,63 @@ function _cli_finetune(rest::Vector{String})::Cint
     end
     out = finetune(CommandLineTuner(cfg; command = c -> _build_trainer_cmd(trainer, c)))
     println("Adapter written to: ", out)
+    return 0
+end
+
+const _RAG_EMBED_MODEL = "embed-gemma:300m"
+const _RAG_CHAT_MODEL = "gemma4-it:e4b"
+
+function _cli_ingest(rest::Vector{String})::Cint
+    length(rest) < 2 && (println(stderr, "usage: tonalli ingest <store.bin> <path...>"); return 2)
+    store_path = rest[1]
+    paths = rest[2:end]
+    store = isfile(store_path) ? load_store(store_path) : VectorStore()
+    b = FastFlowLM(_RAG_EMBED_MODEL)
+    started = false
+    if !ping(b.client)
+        println(stderr, "(starting embed server for $(_RAG_EMBED_MODEL)…)")
+        serve!(b; embed = true)
+        started = true
+    end
+    try
+        println("Ingesting $(length(paths)) path(s) into $store_path …")
+        ingest!(store, b, paths; model = _RAG_EMBED_MODEL)
+        save(store, store_path)
+        println("Done. Store has $(length(store.chunks)) chunk(s).")
+    finally
+        started && stop!(b)
+    end
+    return 0
+end
+
+function _cli_ask(rest::Vector{String})::Cint
+    length(rest) < 2 && (println(stderr, "usage: tonalli ask <store.bin> \"<question>\""); return 2)
+    store_path = rest[1]
+    isfile(store_path) || (println(stderr, "store not found: $store_path"); return 1)
+    query = join(rest[2:end], " ")
+    store = load_store(store_path)
+
+    # One server with --embed 1 should serve both embeddings and chat.
+    b = FastFlowLM(_RAG_CHAT_MODEL)
+    started = false
+    if !ping(b.client)
+        println(stderr, "(starting server for $(_RAG_CHAT_MODEL) with embed support…)")
+        serve!(b; embed = true)
+        started = true
+    end
+    try
+        resp = ask(b, store, b, query; k = 6, embed_model = _RAG_EMBED_MODEL, chat_model = _RAG_CHAT_MODEL)
+        println(resp.content)
+        sources = get(resp.raw isa AbstractDict ? resp.raw : Dict{String, Any}(), "rag_sources", String[])
+        if !isempty(sources)
+            println("\nSources:")
+            for s in unique(sources)
+                println("  • ", s)
+            end
+        end
+    finally
+        started && stop!(b)
+    end
     return 0
 end
 

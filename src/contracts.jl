@@ -34,3 +34,9 @@ end
 @contract AbstractFineTuner "A fine-tuning strategy producing an adapter artifact." begin
     finetune(::Self)::String => "run fine-tuning, returning the adapter artifact path"
 end
+
+# `AbstractVectorStore`: a vector store that supports chunk insertion and similarity search.
+@contract AbstractVectorStore "A vector store for embedding-based chunk retrieval." begin
+    add!(::Self, ::Any, ::Any) => "append chunks and their embedding matrix to the store"
+    search(::Self, ::Any, ::Int) => "return top-k chunks by cosine similarity to a query vector"
+end
