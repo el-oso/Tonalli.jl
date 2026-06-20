@@ -17,7 +17,7 @@ end
 """
     HFModel(repo_id; filename="", revision="main")
 
-A Hugging Face model source. With `filename` set, [`resolve`](@ref) downloads that file.
+A Hugging Face model source. With `filename` set, `resolve` downloads that file.
 """
 struct HFModel <: AbstractModelSource
     repo_id::String
