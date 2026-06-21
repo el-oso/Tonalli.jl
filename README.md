@@ -2,6 +2,7 @@
 
 [![Dev docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://el-oso.github.io/Tonalli.jl/dev/)
 [![CI](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/CI.yml)
+[![Coverage](https://coveralls.io/repos/github/el-oso/Tonalli.jl/badge.svg?branch=master)](https://coveralls.io/github/el-oso/Tonalli.jl?branch=master)
 [![Docs build](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml/badge.svg)](https://github.com/el-oso/Tonalli.jl/actions/workflows/Documentation.yml)
 
 📖 **Documentation: <https://el-oso.github.io/Tonalli.jl/dev/>**
